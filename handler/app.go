@@ -1,41 +1,73 @@
 package handler
 
 import (
-	"kominfo-assignment-2/infra/config"
-	db "kominfo-assignment-2/infra/database"
-	"kominfo-assignment-2/repository/order_repo/order_pg"
-	"kominfo-assignment-2/service/order_service"
+	"h8-assignment-2/docs"
+	"h8-assignment-2/infra/config"
+	"h8-assignment-2/infra/database"
+	"h8-assignment-2/pkg/errs"
+	"h8-assignment-2/repository/item_repository/item_pg"
+	"h8-assignment-2/repository/order_repository/order_pg"
+	"h8-assignment-2/service/order_service"
 
 	"github.com/gin-gonic/gin"
+
+	swaggerfiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
+
+func Middleware() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+
+		ctx.Next()
+	}
+}
+
+func UpdateOrderAuthorization() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		orderId := ctx.Param("orderId")
+
+		if orderId == "2" {
+			forbiddenAccessErr := errs.NewUnauthorizedError("forbidden")
+			ctx.AbortWithStatusJSON(forbiddenAccessErr.Status(), forbiddenAccessErr)
+			return
+		}
+
+		ctx.Next()
+
+	}
+}
 
 func StartApp() {
 	config.LoadAppConfig()
-	db.InitiliazeDatabase()
+	database.InitiliazeDatabase()
 
-	pgSql := db.GetDatabaseInstance()
+	db := database.GetDatabaseInstance()
 
-	_ = pgSql
+	orderRepo := order_pg.NewRepository(db)
 
-	orderRepo := order_pg.NewRepository(pgSql)
+	itemRepo := item_pg.NewRepository(db)
 
-	_ = orderRepo
+	orderService := order_service.NewService(orderRepo, itemRepo)
 
-	orderService := order_service.NewService(orderRepo)
+	orderHandler := NewOrderHandler(orderService)
 
-	oh := NewOrderHandler(orderService)
+	r := gin.Default()
 
-	_ = orderService
+	docs.SwaggerInfo.Title = "H8 Assignment 2"
+	docs.SwaggerInfo.Description = "Ini adalah tugas ke 2 dari kelas Kominfo"
+	docs.SwaggerInfo.Version = "1.0"
+	docs.SwaggerInfo.Host = "localhost:8080"
+	docs.SwaggerInfo.Schemes = []string{"http"}
 
-	route := gin.Default()
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 
-	route.POST("/orders", oh.CreateOrderWithItems)
-	route.GET("/orders", oh.GetOrders)
-	route.PUT("/orders/:orderId", oh.UpdateOrderWithItems)
-	route.DELETE("/orders/:orderId", oh.DeleteOrder)
+	r.POST("/orders", orderHandler.CreateOrder)
 
-	route.Run(":8080")
+	r.GET("/orders", Middleware(), orderHandler.GetOrders)
 
-	_ = route
+	r.PUT("/orders/:orderId", UpdateOrderAuthorization(), orderHandler.UpdateOrder)
 
+	r.DELETE("/orders/:orderId", orderHandler.DeleteOrder)
+
+	r.Run(":8080")
 }

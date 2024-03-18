@@ -1,14 +1,19 @@
 package dto
 
-type CreateItemRequestDto struct {
-	ItemCode    string `json:"itemCode"`
-	Description string `json:"description"`
-	Quantity    int    `json:"quantity"`
+import "time"
+
+type NewItemRequestDto struct {
+	ItemCode    string `json:"itemCode" example:"889"`
+	Description string `json:"description" example:"BMW"`
+	Quantity    int    `json:"quantity" example:"13"`
 }
 
-type UpdateItemRequestDto struct {
-	ItemId      uint   `json:"itemId"`
-	ItemCode    string `json:"itemCode"`
-	Description string `json:"description"`
-	Quantity    int    `json:"quantity"`
+type GetItemResponseDto struct {
+	ItemId      int       `json:"itemId"`
+	ItemCode    string    `json:"itemCode"`
+	Quantity    int       `json:"quantity"`
+	Description string    `json:"description"`
+	OrderId     int       `json:"orderId"`
+	CreatedAt   time.Time `json:"createdAt"`
+	UpdatedAt   time.Time `json:"updatedAt"`
 }

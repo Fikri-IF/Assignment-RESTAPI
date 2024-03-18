@@ -1,11 +1,10 @@
 package database
 
 import (
-	"fmt"
-	"kominfo-assignment-2/infra/config"
-	"log"
-
 	"database/sql"
+	"fmt"
+	"h8-assignment-2/infra/config"
+	"log"
 
 	_ "github.com/lib/pq"
 )

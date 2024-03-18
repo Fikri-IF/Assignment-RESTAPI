@@ -1,6 +1,8 @@
 package main
 
-import "kominfo-assignment-2/handler"
+import (
+	"h8-assignment-2/handler"
+)
 
 func main() {
 	handler.StartApp()

@@ -1,11 +1,13 @@
 package entity
 
-import "time"
+import (
+	"time"
+)
 
 type Item struct {
 	ItemId      uint
 	ItemCode    string
-	Quantity    uint
+	Quantity    int
 	Description string
 	OrderId     uint
 	CreatedAt   time.Time
