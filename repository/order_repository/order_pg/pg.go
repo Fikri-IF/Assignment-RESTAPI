@@ -140,12 +140,13 @@ func (orderPG *orderPG) DeleteOrder(orderId int) errs.Error {
 		return errs.NewInternalServerError("something went wrong")
 	}
 
+	var tempOrderId int
+
 	row := orderPG.db.QueryRow(getOrderById, orderId)
 
-	err = row.Scan()
+	err = row.Scan(&tempOrderId)
 	if err != nil {
 		return errs.NewNotFoundError("order not found")
-
 	}
 
 	_, err = tx.Exec(deleteItemByOrderIdQuery, orderId)

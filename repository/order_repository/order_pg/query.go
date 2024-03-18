@@ -29,7 +29,7 @@ const (
 	`
 
 	getOrderById = `
-		SELECT "order_id", "customer_name", "ordered_at", "created_at", "updated_at" FROM "orders"
+		SELECT "order_id" FROM "orders"
 		WHERE "order_id" = $1
 	`
 
